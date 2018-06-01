@@ -36,8 +36,15 @@ $(function () {
     socket.on('chat message', function(user, msg){
         $('#messages').append($('<li>').text(user + ': ' + msg));
     });
-    socket.on('user connected', function(notification) {
+    socket.on('user connected', function(notification, users) {
         $('#messages').append($('<li class="notification">').text(notification));
+        $('#userlist').empty();
+        $.each(users, function(index, value) {
+            $('#userlist').append(value);
+            if(index != users.length - 1) {
+                $('#userlist').append(', ');
+            }
+        });
     });
     socket.on('user disconnected', function(notification) {
         $('#messages').append($('<li class="notification">').text(notification));

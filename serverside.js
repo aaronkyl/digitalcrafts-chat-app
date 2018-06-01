@@ -13,6 +13,7 @@ nunjucks.configure('views', {
 app.use(express.static('public'));
 
 var users = {};
+var userlist = [];
 
 app.get('/', function(req, res) {
     res.render('index.html', {});
@@ -21,7 +22,8 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket){
     socket.on('join', function(username) {
         users[socket.id] = username;
-        io.emit('user connected', username + ' joined the room');
+        userlist.push(username);
+        io.emit('user connected', username + ' joined the room', userlist);
     });
     socket.on('disconnect', function(){
         console.log(users[socket.id]);
