@@ -26,10 +26,13 @@ io.on('connection', function(socket){
         io.emit('user connected', username + ' joined the room', userlist);
     });
     socket.on('disconnect', function(){
-        console.log(users[socket.id]);
         if (users[socket.id]) {
-            io.emit('user disconnected', users[socket.id] + ' left the room');
+            let index = userlist.indexOf(users[socket.id]);
+                userlist.splice(index, 1);
+            io.emit('user disconnected', users[socket.id] + ' left the room', userlist);
+            delete users[socket.id];
         }
+        console.log("DISCONNECT: ", users);
     });
     socket.on('chat message', function(msg){
         io.emit('chat message', users[socket.id], msg);
@@ -46,5 +49,5 @@ io.on('connection', function(socket){
 });
 
 http.listen(8080, function(){
-    console.log('listening on *:8080');
+    console.log('listening on port 8080');
 });
