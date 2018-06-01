@@ -12,20 +12,35 @@ nunjucks.configure('views', {
 
 app.use(express.static('public'));
 
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/views/index.html');
+var users = {};
+
+app.get('/', function(req, res) {
+    res.render('index.html', {});
 });
 
 io.on('connection', function(socket){
-    console.log('a user joined');
-    io.emit('user connected', 'a user joined');
+    socket.on('join', function(username) {
+        users[socket.id] = username;
+        io.emit('user connected', username + ' joined the room');
+    });
     socket.on('disconnect', function(){
-        console.log('a user left');
-        io.emit('user disconnected', 'a user left');
-  });
-  socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
-  });
+        console.log(users[socket.id]);
+        if (users[socket.id]) {
+            io.emit('user disconnected', users[socket.id] + ' left the room');
+        }
+    });
+    socket.on('chat message', function(msg){
+        io.emit('chat message', users[socket.id], msg);
+    });
+    socket.on('typing', function(username) {
+        io.emit('typing', username + ' is typing');
+    });
+    socket.on('cleartyping', function() {
+        setTimeout(function() {
+            console.log('clearing');
+            io.emit('cleartyping');
+        }, 800);
+    });
 });
 
 http.listen(8080, function(){
